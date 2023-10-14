@@ -14,26 +14,17 @@ class State {
   handleMouseClick(event) { }
   handleMouseMove(event) { }
 }
-// Define the IdleState class
 class IdleState extends State {
   handleMouseClick(event) {
-      console.log("mousedown");
       createLine(event);
-      // Transition to the DrawingState
       currentState = States.DRAWING;
   }
 }
-
-// Define the DrawingState class
 class DrawingState extends State {
   handleMouseMove(event) {
-      console.log("mousemove");
       setLastPoint(event);
-      drawAll();
   }
-
   handleMouseClick(event) {
-      console.log("mouseup")
       saveLine();
       currentState = States.IDLE;
   }
@@ -44,14 +35,13 @@ const States = {
   IDLE: new IdleState(),
   DRAWING: new DrawingState()
 }
-
 // L'état courant
 let currentState = States.IDLE;
-
+// On délègue la gestion des événements
+// à l'état courant
 stage.on('click', (e) => {
   currentState.handleMouseClick(e);
 });
-
 stage.on('mousemove', (e) => {
   currentState.handleMouseMove(e);
 });

@@ -66,7 +66,8 @@ const rubberBandingMachine = createMachine(
   }
 );
 
-const rubberBandingService = interpret(rubberBandingMachine, { devTools: true })
+const rubberBandingService = 
+interpret(rubberBandingMachine, { devTools: true })
   .onTransition((state) => {
     console.log("Current state:", state.value);
   })

@@ -18,19 +18,20 @@ const States = {
   IDLE: 0,
   DRAWING: 1,
 };
-
 let currentState = States.IDLE; // variable d'état
 
 // Les "event handlers" sont déduits de la matrice d'états
-stage.on("click", (e) => {
-    if (currentState == States.IDLE) {
-      createLine(e);
-      currentState = States.DRAWING;
-    } else {
-      saveLine();
-      currentState = States.IDLE;
+stage.on("click", 
+    (e) => {
+        if (currentState == States.IDLE) {
+            createLine(e);
+            currentState = States.DRAWING;
+        } else {
+            saveLine();
+            currentState = States.IDLE;
+        }
     }
-  });
+);
 
 stage.on("mousemove", (e) => {
     if (currentState == States.DRAWING) {
