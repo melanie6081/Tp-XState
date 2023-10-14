@@ -16,78 +16,18 @@ let polyline // La polyline en cours de construction;
 
 const polylineMachine = createMachine(
     {
-        /** @xstate-layout N4IgpgJg5mDOIC5QAcD2AbAngGQJYDswA6XCdMAYgFkB5AVQGUBRAYWwEkWBpAbQAYAuohSpYuAC65U+YSAAeiAIwAWAGxEArAGYAHDo0AmA3x2qNqxRoA0ITEoCciosoDsRg-Zf6DWg4pcAvgE2aFh4hETSYAAKqATi1PTMbJy8grJoYpLSsgoIFvZEOpbKij5l9jou9jZ2CIqOzm4+Ospa1YZ8qkEhGDgExFGx8YmMTLQAakz8QkggmRJSMnN5rlpE9ho69j5aWpVtLta2SnxOBjpaDRcWygZqOj3zfeGDhMP4CUywAMYAhsgwDMMqJFjkVkpVAZnNt2mV9tVfFpaohfHwigYNG0NOZVEcdAYnqF+hEALZ-fCYD7iWCjZIcbjAuYLbLLUB5RR8FzrcxaZR8YwXFyuFEIAxeIgubmqPH2eyuExtIkvAZEcmU6m02hjFKMxSzERZJa5U6qHSadp85RYy6KKqirR45xaPhdUqKO1mZTKsKq9VUuKfLVJcY0KZMw1gtnyJRlDREGVQtyGLHWlyiznnW07Uwqe6BYLPX1kikB+K077-QER55G8HsxA6AWaLmeHFVLFQh2FKoGKHy-ZaDRlAu9YvEf2aihMT5gABONZZxohCB2PalRiHpj5JlFAFpOc4PUd2splJcXDLHoXia81aWpwAhP4-ADWsGQL6B6WZoNZJoQFxFHUNp2kuGVrTxZQHWMDEsSHXF8UJG8VRLDVAxpChnzfD8vx4fUQTraNVlUZQikqTo7XsLlqhg9ECXgnEZXxRQtCCQt8FQCA4BBcdCKjAC9zUI9pVUAUvDRZETgQPdPHIvhHC8M12guZCxxJYhSHIfj-xXJwtj7PZPD8WUzR0UU-DIzFTE8UoqmAvkfQ0yJ3gwnTlwbBBTyIfZzz4DRqIJPgrgslQiGs1RbLtIDVEclDx3vdDy3c+sY1XS5JQ0BT2li6zzOkyyE0RD1gv2Kp5XYgIgA */
+        /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGgAcsAbATwBkBLDMfEI2SgF0qwzoA9EBaANnVI9eAOgAM4iZMkB2ZGnokK1MMMoRitJAsYs2nRABYATAMQAOAIzCD0gJwXetgwGZezgw9ty5QA */
         id: "polyLine",
         initial: "idle",
-        states: {
+        states : {
             idle: {
-                on: {
-                    MOUSECLICK: {
-                        target: "onePoint",
-                        actions: "createLine",
-                    },
-                },
-            },
-            onePoint: {
-                on: {
-                    MOUSECLICK: {
-                        target: "manyPoints",
-                        actions: "addPoint",
-                    },
-                    MOUSEMOVE: {
-                        actions: "setLastPoint",
-                    },
-                    Escape: { // event.key
-                        target: "idle",
-                        actions: "abandon",
-                    },
-                },
-            },
-            manyPoints: {
-                on: {
-                    MOUSECLICK: [
-                        {
-                            actions: "addPoint",
-                            cond: "pasPlein",
-                        },
-                        {
-                            target: "idle",
-                            actions: ["addPoint", "saveLine"],
-                        },
-                    ],
-
-                    MOUSEMOVE: {
-                        actions: "setLastPoint",
-                    },
-
-                    Escape: {
-                        target: "idle",
-                        actions: "abandon",
-                    },
-
-                    Enter: { // event.key
-                        target: "idle",
-                        actions: "saveLine",
-                    },
-
-                    Backspace: [ // event.key
-                        {
-                            target: "manyPoints",
-                            actions: "removeLastPoint",
-                            cond: "plusDeDeuxPoints",
-                            internal: true,
-                        },
-                        {
-                            target: "onePoint",
-                            actions: "removeLastPoint",
-                        },
-                    ],
-                },
-            },
-        },
+            }
+        }
     },
+    // Quelques actions et guardes que vous pouvez utiliser dans votre machine
     {
         actions: {
+            // Créer une nouvelle polyline
             createLine: (context, event) => {
                 const pos = stage.getPointerPosition();
                 polyline = new Konva.Line({
@@ -97,6 +37,7 @@ const polylineMachine = createMachine(
                 });
                 layer.add(polyline);
             },
+            // Mettre à jour le dernier point (provisoire) de la polyline
             setLastPoint: (context, event) => {
                 const pos = stage.getPointerPosition();
                 const currentPoints = polyline.points(); // Get the current points of the line
@@ -106,6 +47,7 @@ const polylineMachine = createMachine(
                 polyline.points(newPoints.concat([pos.x, pos.y]));
                 layer.batchDraw();
             },
+            // Enregistrer la polyline
             saveLine: (context, event) => {
                 const currentPoints = polyline.points(); // Get the current points of the line
                 const size = currentPoints.length;
@@ -114,6 +56,7 @@ const polylineMachine = createMachine(
                 polyline.points(newPoints);
                 layer.batchDraw();
             },
+            // Ajouter un point à la polyline
             addPoint: (context, event) => {
                 const pos = stage.getPointerPosition();
                 const currentPoints = polyline.points(); // Get the current points of the line
@@ -121,9 +64,11 @@ const polylineMachine = createMachine(
                 polyline.points(newPoints); // Set the updated points to the line
                 layer.batchDraw(); // Redraw the layer to reflect the changes
             },
+            // Abandonner le tracé de la polyline
             abandon: (context, event) => {
                 polyline.remove();
             },
+            // Supprimer le dernier point de la polyline
             removeLastPoint: (context, event) => {
                 const currentPoints = polyline.points(); // Get the current points of the line
                 const size = currentPoints.length;
@@ -134,10 +79,11 @@ const polylineMachine = createMachine(
             },
         },
         guards: {
+            // On peut encore ajouter un point
             pasPlein: (context, event) => {
-                // On peut encore ajouter un point
                 return polyline.points().length < MAX_POINTS * 2;
             },
+            // On peut enlever un point
             plusDeDeuxPoints: (context, event) => {
                 // Deux coordonnées pour chaque point, plus le point provisoire
                 return polyline.points().length > 6;
@@ -146,12 +92,13 @@ const polylineMachine = createMachine(
     }
 );
 
+// On démarre la machine
 const polylineService = interpret(polylineMachine)
     .onTransition((state) => {
         console.log("Current state:", state.value);
     })
     .start();
-
+// On envoie les événements à la machine
 stage.on("click", () => {
     polylineService.send("MOUSECLICK");
 });
@@ -160,7 +107,9 @@ stage.on("mousemove", () => {
     polylineService.send("MOUSEMOVE");
 });
 
+// Envoi des touches clavier à la machine
 window.addEventListener("keydown", (event) => {
     console.log("Key pressed:", event.key);
+    // Enverra "a", "b", "c", "Escape", "Backspace", "Enter"... à la machine
     polylineService.send(event.key);
 });
