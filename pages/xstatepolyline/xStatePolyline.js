@@ -16,11 +16,77 @@ let polyline // La polyline en cours de construction;
 
 const polylineMachine = createMachine(
     {
-        /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGgAcsAbATwBkBLDMfEI2SgF0qwzoA9EBaANnVI9eAOgAM4iZMkB2ZGnokK1MMMoRitJAsYs2nRABYATAMQAOAIzCD0gJwXetgwGZezgw9ty5QA */
+        /** @xstate-layout N4IgpgJg5mDOIC5QAcD2AbAngGQJYDswA6XCdMAYgFkB5AVQGUBRAYWwEkWBpAbQAYAuohSpYuAC65U+YSAAeiAIyKA7EQAcAFgDMKzSoBs2gJwGArAb4qANCExK+AJgC+z22ix5CRCACcAhgDuBFDU9My0AGpM-EJIIGhiktKyCgjaOkR8ZmaK+hYG6iqOtvYIALQq2lkGjnzq6sZm2mbqra7uGDgExH5BIWGMrBzcsbKJElIy8WkG5hrGKsaL2iaOjhalSoVEc2aOTUbGjpqORh0JXV69AcH4oUywAMb+yGBj8RPJ06BpqnwaHR6QwmcyWTRbCqKRoXDzdbx9O5QRwABUGzDYnF4gnGokmKRmiGMmjMRBJfEUxjyVPUJ2MkMciiIjiqQM0yw5y1hVx6PluIVR6KYURiOM+eO+qSUiicRCqeU0Ok06m0BkUkPKG00cr22kU2gpZlO+m5nl5iIFaKY+HEYF8HxESSmUoQVIMGiKBmMfHZhjMxm0GtV6h15j1BsURo2pvhN3690FjxebwdlydBN+iEsIfUfEOekcEYpGrOAIp5hOVQMwJj1z58eRaIAQv4ngBrWDIVvvMWO-E-eSICyk2oqzS1EyqWoa5SOXYy5WFSvs-21838hPN1sdrtPd6KOJ9yWEhCtYxESnqasZI3EykMpksjK6XOnMwqLSuNwgfCoCBwXEzUIXF0wHNJynfDUSXdM4w2aFQjSWMw128UhyBA-sXXKek7EQRUsj4QjCJJRocgQlC4yRDDj0zBBHBVC8LErI4wR9SFFQo+skVRajnRPIoc09b1fXMAMZw2LJFArfRVWBJwv2cIA */
         id: "polyLine",
+
         initial: "idle",
+
         states : {
             idle: {
+                on: {
+                    MOUSECLICK: {
+                        target: "drawing",
+                        actions: "createLine"
+                    }
+                }
+            },
+
+            drawing: {
+                on: {
+                    MOUSEMOVE: {
+                        target: "drawing",
+                        internal: true,
+                        actions: "setLastPoint"
+                    },
+
+                    MOUSECLICK: {
+                        target: "drawing2P",
+                        actions: "addPoint",
+                        cond: "pasPlein"
+                    },
+
+                    Escape: {
+                        target: "idle",
+                        actions: "abandon"
+                    }
+                }
+            },
+
+            drawing2P: {
+                on: {
+                    MOUSECLICK: {
+                        target: "drawing2P",
+                        internal: true,
+                        cond: "pasPlein",
+                        actions: "addPoint"
+                    },
+
+                    MOUSEMOVE:{
+                        target: "drawing2P",
+                        internal: true,
+                        actions: "setLastPoint"
+                    },
+
+                    Enter: {
+                        target: "idle",
+                        actions: "saveLine"
+                    },
+
+                    Escape: {
+                        target: "idle",
+                        actions: "abandon"
+                    },
+
+                    Backspace: [{
+                        target: "drawing2P",
+                        internal: true,
+                        cond: "plusDeDeuxPoints",
+                        actions: "removeLastPoint"
+                    }, {
+                        target: "drawing",
+                        actions: "removeLastPoint"
+                    }]
+                }
             }
         }
     },
